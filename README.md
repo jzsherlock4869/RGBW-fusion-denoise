@@ -1,6 +1,21 @@
-# Dual Branch Network for RGBW Fusion and Denoising
+# Dual Branch Network for RGBW Fusion and Denoising (Official Implementation)
 
-This is the codebase for RGBW fusion and denoising challenge of MIPI22 of team jzsherlock.
+This is the top 3rd solution for RGBW fusion and denoising challenge of MIPI22 (team jzsherlock).
+
+## Method Description
+We proposed a dual-branch network to restore the noisy bayer image with the guidance of corresponding white image. The architecture of the network is shown in Fig.1. The bayer branch takes normalized noisy bayer image as input and output the denoised result. As the bayer image has the repeated pattern of size 2x2, so we first convert the bayer image to GBRG channels by pixel unshuffle operation with scale=2, then the feature maps of noisy bayer image is extracted using stacked ResBlocks which have no BN layers. The other white branch extracts the features from corresponding white image using stacked ResBlocks, and an average pooling layer follows to rescale the white image features to the same size as bayer branch for feature fusion. After the features from two branches fused together, several Residual-in-Residual Dense Blocks (RRDB) are utilized for the restoration. After the RRDB blocks, a Conv+LeakyReLU+Conv structure is applied to enlarge the feature map channels by scale of 4 (from [n, c, h/2, w/2] to [n, 4c, h/2, w/2], where n, c, h, w represent batchsize, feature map channels, and bayer input height and width respectively). Then pixel shuffle with scale=2 is applied to the feature maps to upscale the feature maps to the input size in height and width dimension (from [n, 4c, h/2, w/2] to [n, c, h, w]). After the pixel shuffle operation, a Conv layer is used to convert the [n, c, h, w] to [n, 4, h, w] to simulate the GBRG 4 channels. At last, a bayer shift layer is used to get the bayer pattern image with shape [n, 1, h, w], which then added the input bayer from skip connection to form the final denoised result. 
+
+![network structure](assets/fig2.png)
+
+The operations inside bayer shift layer is illustrated in Fig.2 . We do not output the bayer pattern result using a simple pixel shuffle layer, because the pixels of each 2x2 GBRG cell are from different locations, but the values in each channels from a pixel in feature maps are aligned. So we simulate the subsampling operation from a complete GBRG 4-channel image to get the unaligned pixels, and fuse them by placing each color in the corresponding location using GBRG format. This process is implemented using depth-wise convolution (DWConv) and pixel shuffle for assurance of back propagation. Firstly, we form the locations in 2x2 cell as shift filters, and apply a DWConv with stacked shift filters as kernel and stride=2. Then the 4 channels are subsampled according to their correct shift, and converted to 1 channel via pixel shuffle. 
+
+![bayer shift layer](assets/fig3.png)
+
+The network is trained using L1 loss in the normalized domain. The final selected input normalize method is min-max normalize with min=64 and max=1023, with values out of the range clipped. Details of training and inference will be described in the following section.
+
+TTA (Test Time Augmentation) is used in inference time with some modification to the common implementations due to the non-symmetric property of bayer pattern. As shown in Fig. 3, after the horizontal flip (h-flip), the GBRG pattern turns into BGGR, which cannot feed into the network for prediction. However, considering the periodic property of bayer pattern, we clip the first and last column, then the left pixels form a GBRG pattern again, which can be used as the input of bayer branch of the network. Similar operation is done for vertical flip (v-flip). Finally the overlapped regions in outputs from original bayer, h-flipped bayer and v-flipped bayer are averaged to form the augmented result.
+
+![TTA for bayer pattern](assets/fig4.png)
 
 ## Brief Summary of Codebase
 
@@ -44,6 +59,18 @@ python test_rgbw.py -opt options/test/finaltest_012_clipnorm_bslndualv2_nobn_bs3
 The processed results are saved `results` folder in the parent dir of `codebase_local`. in the subfolder with the name same as written in the final test configure: `012_clipnorm_bslndualv2_nobn_bs32ps160_msteplr_l1loss_trainall`.
 
 
-## Contact
-The results can be correctly re-produced or re-trained following the above steps for environment setups and bash commands. If there are some problems or questions about the re-implementation, please contact: jzsherlock@163.com. Thanks~
+## Citation
+
+Please **star** the repository if this codebase helps you. If you would like to use this code for official purpose, a formal citation form is provided as below:
+
+```
+@software{rgbw_jzsherlock_2022,
+  author = {Zhuang Jia},
+  month = {11},
+  title = {{Dual Branch Network for RGBW Fusion and Denoising}},
+  url = {https://github.com/jzsherlock4869/RGBW-fusion-denoise},
+  version = {1.0.0},
+  year = {2023}
+}
+```
 

@@ -1,0 +1,128 @@
+# general settings
+name: 012_clipnorm_bslndualv2_nobn_bs32ps160_msteplr_l1loss_trainall
+model_type: BaseRGBWModel
+scale: 1
+num_gpu: 1  # set num_gpu: 0 for cpu mode
+manual_seed: 0
+
+# dataset and data loader settings
+datasets:
+  train:
+    name: RGBWTrainDataset
+    type: PairedRGBWDataset
+    # change the following paths to your own dataset path
+    dataroot_gt: /data/datasets/MIPI/003_rgbw/RGBW_train_dataset_halfres/GT_bayer/train_bayer_half_gt
+    dataroot_lq24: /data/datasets/MIPI/003_rgbw/RGBW_train_dataset_halfres/input/train_RGBW_half_input_24dB
+    dataroot_lq42: /data/datasets/MIPI/003_rgbw/RGBW_train_dataset_halfres/input/train_RGBW_half_input_42dB
+    dataroot_imginfo: /data/datasets/MIPI/003_rgbw/RGBW_train_dataset_halfres/ImgInfo/train_RGBW_half_imgInfo
+    norm_type: clip_norm
+    gt_size: 160
+    use_flip: true
+    use_rot: true
+
+    # data loader
+    use_shuffle: true
+    num_worker_per_gpu: 4  # per GPU
+    batch_size_per_gpu: 32  # total
+    dataset_enlarge_ratio: 10
+    prefetch_mode: cuda
+    pin_memory: true
+
+  val:
+    name: RGBWValDataset
+    type: PairedRGBWDataset
+    # change the following paths to your own dataset path
+    dataroot_gt: /data/datasets/MIPI/003_rgbw/RGBW_train_dataset_halfres/GT_bayer/train_bayer_half_gt
+    dataroot_lq24: /data/datasets/MIPI/003_rgbw/RGBW_train_dataset_halfres/input/train_RGBW_half_input_24dB
+    dataroot_lq42: /data/datasets/MIPI/003_rgbw/RGBW_train_dataset_halfres/input/train_RGBW_half_input_42dB
+    dataroot_imginfo: /data/datasets/MIPI/003_rgbw/RGBW_train_dataset_halfres/ImgInfo/train_RGBW_half_imgInfo
+    norm_type: clip_norm
+
+
+# network structures
+network_g:
+  type: RGBWDualstreamV2Arch
+
+  # params for net_b
+  nf_b: 64
+  nb_b: 3
+  block_b: resblock
+  net_b_args:
+    res_scale: 1
+    with_bn: false
+    last_relu: false
+    act_type: lrelu
+
+  # params for net_c
+  nf_c: 64
+  nb_c: 3
+  block_c: resblock
+  net_c_args:
+    res_scale: 1
+    with_bn: false
+    last_relu: false
+    act_type: lrelu
+
+  # params for net_dn
+  nf_dn: 64
+  nb_dn: 16
+  block_dn: rrdb
+  net_dn_args:
+    num_grow_ch: 32
+
+# path
+path:
+  experiments_root: ../experiments
+  pretrain_network_g: ~
+  strict_load_g: true
+  resume_state: ~
+
+# training settings
+train:
+  optim_g:
+    type: Adam
+    lr: !!float 5e-4
+    weight_decay: 0
+    betas: [0.9, 0.99]
+
+  scheduler:
+    type: MultiStepLR
+    milestones: [50000, 100000, 150000]
+    gamma: 0.5
+
+  total_iter: 250000   # 1000k iters
+  warmup_iter: -1  # no warm up
+
+  # pixel loss in rgb domain
+  pix_opt:
+    type: L1Loss
+    loss_weight: !!float 1.0
+    reduction: mean
+
+
+# validation settings
+val:
+  val_freq: !!float 5e3
+  save_img: true
+  save_binary: false
+  pbar: true
+
+  metrics:
+    psnr: # metric name, can be arbitrary
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+
+# logging settings
+logger:
+  print_freq: 100
+  save_checkpoint_freq: !!float 5e3
+  use_tb_logger: true
+  wandb:
+    project: ~
+    resume_id: ~
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500
