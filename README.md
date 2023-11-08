@@ -56,7 +56,7 @@ to inference for the test dataset with the final model without training (or afte
 python test_rgbw.py -opt options/test/finaltest_012_clipnorm_bslndualv2_nobn_bs32ps160_msteplr_l1loss_trainall_tta.yml
 ```
 
-The processed results are saved `results` folder in the parent dir of `codebase_local`. in the subfolder with the name same as written in the final test configure: `012_clipnorm_bslndualv2_nobn_bs32ps160_msteplr_l1loss_trainall`.
+The processed results are saved `results` folder in the parent dir of `codebase`. in the subfolder with the name same as written in the final test configure: `012_clipnorm_bslndualv2_nobn_bs32ps160_msteplr_l1loss_trainall`.
 
 
 ## Citation
