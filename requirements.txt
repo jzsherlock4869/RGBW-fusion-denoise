@@ -1,0 +1,16 @@
+addict==2.4.0
+colour-demosaicing==0.1.6
+einops==0.4.1
+lpips==0.1.4
+numpy==1.21.6
+opencv-contrib-python==4.6.0.66
+opencv-python==4.6.0.66
+Pillow==9.1.1
+pyiqa==0.1.4
+pytorch-debayer==1.4.1
+thop==0.1.0.post2206102148
+tifffile==2021.11.2
+timm==0.6.5
+torch==1.11.0
+torchvision==0.12.0
+tqdm==4.63.0
