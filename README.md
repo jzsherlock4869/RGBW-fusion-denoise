@@ -19,7 +19,7 @@ TTA (Test Time Augmentation) is used in inference time with some modification to
 
 ## Brief Summary of Codebase
 
-This codebase contains a `BasicSR` folder which is modified from the original [BasicSR](https://github.com/XPixelGroup/BasicSR) project. This codebase is mainly based on BasicSR framework. Folder `codebase_local` contains the necessary source code to re-run the training and inference code, including the archs of network, training settings and configures, and other utiliy codes. `experiments` is the place for final model and corresponding .log file which can be checked. The `requirements.txt` contains the possible required packages to be installed and their versions. Note that the precise versions given here means they are tested and can work well, packages with similar but not the same version may work well too if you cannot install the same version.
+This codebase contains a `BasicSR` folder which is modified from the original [BasicSR](https://github.com/XPixelGroup/BasicSR) project. This codebase is mainly based on BasicSR framework. Folder `codebase` contains the necessary source code to re-run the training and inference code, including the archs of network, training settings and configures, and other utiliy codes. `experiments` is the place for final model and corresponding .log file which can be checked. The `requirements.txt` contains the possible required packages to be installed and their versions. Note that the precise versions given here means they are tested and can work well, packages with similar but not the same version may work well too if you cannot install the same version.
 
 ## Installation and Preparation
 
