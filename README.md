@@ -2,6 +2,10 @@
 
 This is the top 3rd solution for RGBW fusion and denoising challenge of MIPI 2022 (team jzsherlock).
 
+[Mobile Intelligent Photography and Imaging Challenge (MIPI) 2022](https://mipi-challenge.org/)
+
+Challenge report: [RGBW Joint Fusion and Denoise @MIPI-challenge](https://arxiv.org/abs/2209.07530)
+
 ## Method Description
 We proposed a dual-branch network to restore the noisy bayer image with the guidance of corresponding white image. The architecture of the network is shown in Fig.1. The bayer branch takes normalized noisy bayer image as input and output the denoised result. As the bayer image has the repeated pattern of size 2x2, so we first convert the bayer image to GBRG channels by pixel unshuffle operation with scale=2, then the feature maps of noisy bayer image is extracted using stacked ResBlocks which have no BN layers. The other white branch extracts the features from corresponding white image using stacked ResBlocks, and an average pooling layer follows to rescale the white image features to the same size as bayer branch for feature fusion. After the features from two branches fused together, several Residual-in-Residual Dense Blocks (RRDB) are utilized for the restoration. After the RRDB blocks, a Conv+LeakyReLU+Conv structure is applied to enlarge the feature map channels by scale of 4 (from [n, c, h/2, w/2] to [n, 4c, h/2, w/2], where n, c, h, w represent batchsize, feature map channels, and bayer input height and width respectively). Then pixel shuffle with scale=2 is applied to the feature maps to upscale the feature maps to the input size in height and width dimension (from [n, 4c, h/2, w/2] to [n, c, h, w]). After the pixel shuffle operation, a Conv layer is used to convert the [n, c, h, w] to [n, 4, h, w] to simulate the GBRG 4 channels. At last, a bayer shift layer is used to get the bayer pattern image with shape [n, 1, h, w], which then added the input bayer from skip connection to form the final denoised result. 
 
