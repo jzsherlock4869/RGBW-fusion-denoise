@@ -46,7 +46,7 @@ In order to re-implement the training, you can use the `start_train.sh` with the
 (need to modify the .yml in `option/train` to make the dataroot comply with your dataset location)
 
 ```shell
-cd codebase_local
+cd codebase
 sh start_train.sh options/train/012_clipnorm_bslndualv2_nobn_bs32ps160_msteplr_l1loss_trainall.yml 0  # re-run the config for final model in GPU 0
 ```
 
