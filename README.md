@@ -1,6 +1,6 @@
 # Dual Branch Network for RGBW Fusion and Denoising (Official Implementation)
 
-This is the top 3rd solution for RGBW fusion and denoising challenge of MIPI 2022 (team jzsherlock).
+This is the **top 3rd** solution for RGBW fusion and denoising challenge of MIPI 2022 (team jzsherlock).
 
 [Mobile Intelligent Photography and Imaging Challenge (MIPI) 2022](https://mipi-challenge.org/)
 
