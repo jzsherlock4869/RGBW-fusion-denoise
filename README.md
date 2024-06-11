@@ -14,14 +14,14 @@ We proposed a dual-branch network to restore the noisy bayer image with the guid
 The operations inside bayer shift layer is illustrated in Fig.2 . We do not output the bayer pattern result using a simple pixel shuffle layer, because the pixels of each 2x2 GBRG cell are from different locations, but the values in each channels from a pixel in feature maps are aligned. So we simulate the subsampling operation from a complete GBRG 4-channel image to get the unaligned pixels, and fuse them by placing each color in the corresponding location using GBRG format. This process is implemented using depth-wise convolution (DWConv) and pixel shuffle for assurance of back propagation. Firstly, we form the locations in 2x2 cell as shift filters, and apply a DWConv with stacked shift filters as kernel and stride=2. Then the 4 channels are subsampled according to their correct shift, and converted to 1 channel via pixel shuffle. 
 
 <p align="center">
-  <img src="assets/fig3.png" height=400>
+  <img src="assets/fig3.png" height=300>
 
 The network is trained using L1 loss in the normalized domain. The final selected input normalize method is min-max normalize with min=64 and max=1023, with values out of the range clipped. Details of training and inference will be described in the following section.
 
 TTA (Test Time Augmentation) is used in inference time with some modification to the common implementations due to the non-symmetric property of bayer pattern. As shown in Fig. 3, after the horizontal flip (h-flip), the GBRG pattern turns into BGGR, which cannot feed into the network for prediction. However, considering the periodic property of bayer pattern, we clip the first and last column, then the left pixels form a GBRG pattern again, which can be used as the input of bayer branch of the network. Similar operation is done for vertical flip (v-flip). Finally the overlapped regions in outputs from original bayer, h-flipped bayer and v-flipped bayer are averaged to form the augmented result.
 
 <p align="center">
-  <img src="assets/fig4.png" height=400>
+  <img src="assets/fig4.png" height=300>
 
 ## Brief Summary of Codebase
 
